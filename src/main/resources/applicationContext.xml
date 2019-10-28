@@ -8,6 +8,43 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+        <!-- namespace命名空间：http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd -->
 
- 
+	<!-- 配连接池 -->
+	<!-- 1:加载db.properties文件 系统属性设置为NEVER-->
+	<context:property-placeholder location="classpath:db.properties" system-properties-mode="NEVER"/>
+	<!-- 2:配置Druid连接池对象 -->
+	<bean id="myDataSource" class="com.alibaba.druid.pool.DruidDataSource" 
+		init-method="init" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+	<!-- 3:配置SqlSessionFactory -->
+	<bean id="mySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 1:关联连接池 -->
+		<property name="dataSource" ref="myDataSource"/>
+		<!-- 2:配置MyBatis属性配置 -->
+		<!-- <property name="configLocation" value="classpath:mybatis-config.xml"/>  -->
+		<property name="configurationProperties">
+			<value>
+				lazyLoadingEnabled=true
+				aggressiveLazyLoading=false
+				lazyLoadTriggerMethds=clone
+			</value>
+		</property>
+		<!-- 3:配置为哪个包中的类取别名 -->
+		<property name="typeAliasesPackage" value="com.mybooks.entity"/>
+		<!-- 4：关联Mapper映射文件 -->
+		<property name="mapperLocations" value="classpath:mappers/*Mapper.xml"/>
+	</bean>
+	<!-- 4:配置MapperFactoryBean，让Spring帮我们创建Mapper的代理对象 -->
+	<bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="sqlSessionFactory" ref="mySqlSessionFactory"/>
+		<!-- 把值获取出来，通过反射得到Class，将Class设置给MapperFactoryBean的T -->
+		<property name="mapperInterface" value="com.mybooks.mapper.UserMapper"/>
+	</bean>
+	
+	<!--  -->
 </beans>

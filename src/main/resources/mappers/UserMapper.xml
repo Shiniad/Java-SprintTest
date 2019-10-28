@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 根据id查询一个用户，namespace表示映射xml路径 -->
+<mapper namespace="com.mybooks.mapper.UserMapper">
+	
+	<!-- type声明了一个名为User的类型，mybatis无法识别，这里留给spring处理 -->
+	<resultMap type="User" id="BaseResultMap">
+		<!-- 将bean的属性与数据库的列名一一对应 -->
+    	<id property="id" column="id"/>
+    	<result property="name" column="name"/>
+    	<result property="age" column="age"/>
+    	<result property="bornDate" column="born_date"/>
+    	<result property="headImg" column="head_img"/>
+	</resultMap>
+	
+	<!-- 实现UserMapper接口，使用#{id}传入参数 -->
+	<select id="selectAll" resultMap="BaseResultMap">
+		SELECT * FROM t_user
+	</select>
+	<select id="selectById" resultMap="BaseResultMap">
+		SELECT * FROM t_user WHERE id = #{id}
+	</select>
+	<!-- 对于支持自动生成记录主那键的数据库，执行添加记录后可以获取到自动生的主键ID -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_user(id,name,age,born_date,head_img) VALUES(#{id},#{name},#{age},#{bornDate},#{headImg})
+	</insert>
+	<update id="updateById">
+		UPDATE t_user SET name = #{name},age = #{age},born_date = #{bornDate},head_img = #{headImg} WHERE id = #{id}
+	</update>
+	<delete id="deleteById">
+		DELETE FROM t_user WHERE id = #{id}
+	</delete>
+</mapper>
